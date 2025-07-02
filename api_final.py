@@ -12370,23 +12370,23 @@ products_data = [
 
 @app.route("/list", methods=["GET"])
 def list_products():
-    page = int(request.args.get("page", 1))
-    item_per_page = int(request.args.get("item_per_page", 10))
+    page = 1
+    item_per_page = 1123
     total_items = len(products_data)
-    pages_count = (total_items + item_per_page - 1) // item_per_page
-    start = (page - 1) * item_per_page
-    end = min(start + item_per_page, total_items)
+    pages_count = 1
 
-    products = products_data[start:end]
-
-    return jsonify({
+    response_data = {
         "success": True,
-        "products": products,
+        "products": products_data,
         "total_items": total_items,
         "pages_count": pages_count,
         "item_per_page": item_per_page,
         "page_num": page
-    })
+    }
+
+    # ارسال JSON به صورت UTF-8 صحیح
+    response_json = json.dumps(response_data, ensure_ascii=False)
+    return Response(response_json, content_type="application/json; charset=utf-8")
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=10000)
