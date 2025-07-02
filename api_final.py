@@ -1,9 +1,10 @@
-from flask import Flask, request, jsonify
+from flask import Flask, Response
+import json
 
 app = Flask(__name__)
 
-# لیست محصولات ثابت
-products_data = [
+# تعریف داده خام به صورت رشته
+products_data_str = """
 {
   "success": true,
   "products": [
@@ -12366,10 +12367,13 @@ products_data = [
   "item_per_page": 1123,
   "page_num": 1
 }
-]
+"""
 
 @app.route("/list", methods=["GET"])
 def list_products():
+    # تبدیل رشته به لیست پایتون
+    products_data = json.loads(products_data_str)
+
     page = 1
     item_per_page = 1123
     total_items = len(products_data)
@@ -12384,7 +12388,6 @@ def list_products():
         "page_num": page
     }
 
-    # ارسال JSON به صورت UTF-8 صحیح
     response_json = json.dumps(response_data, ensure_ascii=False)
     return Response(response_json, content_type="application/json; charset=utf-8")
 
