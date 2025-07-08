@@ -1,9 +1,10 @@
+import json
 from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
-# لیست محصولات
-{
+# JSON به صورت رشته
+all_products_json = '''{
   "success": true,
   "products": [
     {
@@ -12365,6 +12366,10 @@ app = Flask(__name__)
   "item_per_page": 1123,
   "page_num": 1
 }
+]'''
+
+# تبدیل JSON به لیست پایتون
+all_products = json.loads(all_products_json)
 
 # تعداد کل محصولات
 total_items = len(all_products)
@@ -12372,38 +12377,21 @@ total_items = len(all_products)
 @app.route("/list", methods=["GET"])
 def list_products():
     try:
-        # دریافت پارامترهای صفحه‌بندی
         page = int(request.args.get("page", 1))
         item_per_page = int(request.args.get("item_per_page", 10))
 
-        # اعتبارسنجی ورودی‌ها
         if page < 1 or item_per_page < 1:
-            return jsonify({
-                "success": False,
-                "error": "Page and item_per_page must be positive integers"
-            }), 400
+            return jsonify({"success": False, "error": "Page and item_per_page must be positive integers"}), 400
 
-        # محاسبه تعداد صفحات
         pages_count = (total_items + item_per_page - 1) // item_per_page
-
-        # محاسبه محدوده محصولات برای صفحه فعلی
         start = (page - 1) * item_per_page
         end = min(start + item_per_page, total_items)
 
-        # بررسی وجود محصولات در صفحه درخواستی
         if start >= total_items:
-            return jsonify({
-                "success": False,
-                "error": "Page out of range"
-            }), 404
+            return jsonify({"success": False, "error": "Page out of range"}), 404
 
-        # کپی محصولات برای حذف کلید "count_pages" (در صورت وجود)
-        products = [
-            {key: product[key] for key in product if key != "count_pages"}
-            for product in all_products[start:end]
-        ]
+        products = all_products[start:end]
 
-        # پاسخ API
         return jsonify({
             "success": True,
             "products": products,
@@ -12414,10 +12402,7 @@ def list_products():
         })
 
     except ValueError:
-        return jsonify({
-            "success": False,
-            "error": "Invalid page or item_per_page value"
-        }), 400
+        return jsonify({"success": False, "error": "Invalid page or item_per_page value"}), 400
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=10000)
