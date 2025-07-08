@@ -1,11 +1,10 @@
-from flask import Flask, Response
-import json
+from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
-# تعریف داده خام به صورت رشته
-products_data_str = """
-{
+# لیست محصولات ثابت و واقعی‌نما
+all_products = [
+    {
   "success": true,
   "products": [
     {
@@ -12367,29 +12366,26 @@ products_data_str = """
   "item_per_page": 1123,
   "page_num": 1
 }
-"""
+total_items = len(all_products)
 
 @app.route("/list", methods=["GET"])
 def list_products():
-    # تبدیل رشته به لیست پایتون
-    products_data = json.loads(products_data_str)
+    page = int(request.args.get("page", 1))
+    item_per_page = int(request.args.get("item_per_page", 10))
+    pages_count = (total_items + item_per_page - 1) // item_per_page
 
-    page = 1
-    item_per_page = 1123
-    total_items = len(products_data)
-    pages_count = 1
+    start = (page - 1) * item_per_page
+    end = min(start + item_per_page, total_items)
+    products = all_products[start:end]
 
-    response_data = {
+    return jsonify({
         "success": True,
-        "products": products_data,
+        "products": products,
         "total_items": total_items,
         "pages_count": pages_count,
         "item_per_page": item_per_page,
         "page_num": page
-    }
-
-    response_json = json.dumps(response_data, ensure_ascii=False)
-    return Response(response_json, content_type="application/json; charset=utf-8")
+    })
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=10000)
