@@ -2,9 +2,9 @@ from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
-# لیست محصولات ثابت و واقعی‌نما
+# لیست محصولات (ساختار اصلاح‌شده)
 all_products = [
-    {
+{
   "success": true,
   "products": [
     {
@@ -12366,26 +12366,60 @@ all_products = [
   "item_per_page": 1123,
   "page_num": 1
 }
+]
+
+# تعداد کل محصولات
 total_items = len(all_products)
 
 @app.route("/list", methods=["GET"])
 def list_products():
-    page = int(request.args.get("page", 1))
-    item_per_page = int(request.args.get("item_per_page", 10))
-    pages_count = (total_items + item_per_page - 1) // item_per_page
+    try:
+        # دریافت پارامترهای صفحه‌بندی
+        page = int(request.args.get("page", 1))
+        item_per_page = int(request.args.get("item_per_page", 10))
 
-    start = (page - 1) * item_per_page
-    end = min(start + item_per_page, total_items)
-    products = all_products[start:end]
+        # اعتبارسنجی ورودی‌ها
+        if page < 1 or item_per_page < 1:
+            return jsonify({
+                "success": False,
+                "error": "Page and item_per_page must be positive integers"
+            }), 400
 
-    return jsonify({
-        "success": True,
-        "products": products,
-        "total_items": total_items,
-        "pages_count": pages_count,
-        "item_per_page": item_per_page,
-        "page_num": page
-    })
+        # محاسبه تعداد صفحات
+        pages_count = (total_items + item_per_page - 1) // item_per_page
+
+        # محاسبه محدوده محصولات برای صفحه فعلی
+        start = (page - 1) * item_per_page
+        end = min(start + item_per_page, total_items)
+
+        # بررسی وجود محصولات در صفحه درخواستی
+        if start >= total_items:
+            return jsonify({
+                "success": False,
+                "error": "Page out of range"
+            }), 404
+
+        # کپی محصولات برای حذف کلید "count_pages" (در صورت وجود)
+        products = [
+            {key: product[key] for key in product if key != "count_pages"}
+            for product in all_products[start:end]
+        ]
+
+        # پاسخ API
+        return jsonify({
+            "success": True,
+            "products": products,
+            "total_items": total_items,
+            "pages_count": pages_count,
+            "item_per_page": item_per_page,
+            "page_num": page
+        })
+
+    except ValueError:
+        return jsonify({
+            "success": False,
+            "error": "Invalid page or item_per_page value"
+        }), 400
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=10000)
