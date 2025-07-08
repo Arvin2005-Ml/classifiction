@@ -2,8 +2,7 @@ from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
-# لیست محصولات (ساختار اصلاح‌شده)
-all_products = [
+# لیست محصولات
 {
   "success": true,
   "products": [
@@ -12366,7 +12365,6 @@ all_products = [
   "item_per_page": 1123,
   "page_num": 1
 }
-]
 
 # تعداد کل محصولات
 total_items = len(all_products)
