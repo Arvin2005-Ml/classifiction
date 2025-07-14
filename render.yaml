@@ -3,8 +3,10 @@ services:
     name: telegram-robotic-bot
     env: python
     plan: free
+    runtime: python
     buildCommand: "pip install -r requirements.txt"
     startCommand: "python app.py"
+    pythonVersion: 3.11
     envVars:
       - key: TOKEN
-        value: توکن_ربات_که_از_BotFather_گرفتی
+        value: توکن_ربات
