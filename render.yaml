@@ -1,7 +1,10 @@
 services:
   - type: web
-    name: product-api
+    name: telegram-robotic-bot
     env: python
-    buildCommand: "pip install -r requirements.txt"
-    startCommand: "python api.py"
     plan: free
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "python app.py"
+    envVars:
+      - key: TOKEN
+        value: توکن_ربات_که_از_BotFather_گرفتی
